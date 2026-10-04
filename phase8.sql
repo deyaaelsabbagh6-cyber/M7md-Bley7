@@ -14,7 +14,9 @@ create table if not exists assignments (
   created_at timestamptz not null default now()
 );
 alter table assignments enable row level security;
+drop policy if exists as_owner on assignments;
 create policy as_owner on assignments for all using (is_owner()) with check (is_owner());
+drop policy if exists as_lawyer on assignments;
 create policy as_lawyer on assignments for select using (lawyer_id = auth.uid());
 
 -- أي حساب جديد يُنشأ معطّلًا حتى يفعّله المالك (يمنع التسجيل الذاتي)
