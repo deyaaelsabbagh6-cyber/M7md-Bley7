@@ -31,10 +31,7 @@ export async function middleware(req: NextRequest) {
   const { data: { user } } = await sb.auth.getUser() // تحقق من السيرفر وليس من الكوكي فقط
   if (!user) return kill(req, '/login')
 
-  const { data: p } = await sb.from('profiles').select('role,is_active,force_logout_at').eq('id', user.id).single()
-  if (!p?.is_active || p.role !== area) return kill(req, '/login')
-  // إنهاء الجلسات من مركز الأمان: أي دخول أقدم من وقت الإنهاء يُلغى
-  if (p.force_logout_at && new Date(user.last_sign_in_at ?? 0) < new Date(p.force_logout_at)) { await sb.auth.signOut(); return kill(req, '/login?e=ended') }
+  // فحص الدور والإنهاء الإجباري يتم في requireRole (مرة واحدة لكل طلب) لتقليل زمن الاستجابة
 
   res.cookies.set('last_seen', String(Date.now()), opts)
   return res

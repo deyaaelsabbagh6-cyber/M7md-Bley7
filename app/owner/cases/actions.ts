@@ -1,7 +1,8 @@
 'use server'
 import { revalidatePath } from 'next/cache'
+import { guard } from '@/lib/flash'
 import { requireRole } from '@/lib/role'
-export async function addCase(f: FormData) {
+async function addCaseImpl(f: FormData) {
   const { admin, user } = await requireRole('owner')
   const lawyer = String(f.get('lawyer') || '') || null
   const { data, error } = await admin.from('cases').insert({
@@ -37,3 +38,5 @@ export async function updateCase(id: string, f: FormData) {
   await admin.from('audit_logs').insert({ actor_id: user.id, action: 'CASE_UPDATED', entity: 'case', entity_id: id, meta: { status } })
   revalidatePath(`/owner/cases/${id}`); revalidatePath('/owner/cases')
 }
+
+export async function addCase(f: FormData) { await guard('/owner/cases', () => addCaseImpl(f)) }

@@ -13,7 +13,7 @@ export default async function Clients({ searchParams }: { searchParams: Promise<
       <p><a href="/api/export/clients" style={{ color: '#f3d98b' }}>⬇️ تصدير</a></p>
       <form style={{ margin: '8px 0' }}><input name="q" defaultValue={q} placeholder="بحث بالاسم أو الهاتف" /> <button>بحث</button></form>
       <form action={addClient} style={{ display: 'grid', gap: 6, maxWidth: 380, margin: '10px 0' }}>
-        <b>إضافة عميل</b><input name="file_no" placeholder="رقم الملف" /><input name="email" type="email" placeholder="البريد الإلكتروني" /><input name="name" required placeholder="الاسم" /><input name="phone" placeholder="الهاتف" />
+        <b>إضافة عميل</b><input name="file_no" placeholder="رقم الملف" /><input name="name" required placeholder="الاسم" /><input name="phone" placeholder="الهاتف" />
         <input name="gov" placeholder="المحافظة" /><input name="district" placeholder="المركز / المنطقة" /><button>إضافة</button>
       </form>
       {(data ?? []).map((c) => <div key={c.id} style={{ border: '1px solid #d4af3788', borderRadius: 14, padding: 12, marginTop: 8 }}>

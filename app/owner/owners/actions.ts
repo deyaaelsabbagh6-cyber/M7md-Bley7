@@ -1,12 +1,13 @@
 'use server'
 import { revalidatePath } from 'next/cache'
+import { guard } from '@/lib/flash'
 import { requireOwner } from '@/lib/owner'
 
-export async function createOwner(f: FormData) {
+async function createOwnerImpl(f: FormData) {
   const { admin, user } = await requireOwner()
   const username = String(f.get('username')).trim().toLowerCase(), name = String(f.get('name')).trim(), pw = String(f.get('password'))
   if (!/^[a-z0-9._-]{3,30}$/.test(username)) throw new Error('اسم المستخدم: حروف إنجليزية وأرقام 3-30')
-  if (pw.length < 12) throw new Error('كلمة مرور المالك 12 حرفًا على الأقل')
+  if (pw.length < 10) throw new Error('كلمة مرور المالك 10 أحرف على الأقل')
   const { data, error } = await admin.auth.admin.createUser({ email: `${username}@baleeh.local`, password: pw, email_confirm: true, user_metadata: { full_name: name } })
   if (error || !data.user) throw new Error(error?.message ?? 'فشل الإنشاء')
   const id = data.user.id
@@ -36,3 +37,5 @@ export async function disableOwner(id: string) {
   await admin.from('audit_logs').insert({ actor_id: user.id, action: 'OWNER_DISABLED', entity: 'owner', entity_id: id })
   revalidatePath('/owner/owners')
 }
+
+export async function createOwner(f: FormData) { await guard('/owner/owners', () => createOwnerImpl(f)) }

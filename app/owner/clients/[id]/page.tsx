@@ -27,13 +27,12 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     <Link href="/owner/clients" style={{ color: '#f3d98b' }}>← العملاء</Link>
     <h1 style={{ color: '#f3d98b' }}>👤 {c?.full_name}</h1>
     <p>{c?.phone} — {c?.governorate} — {c?.district}</p>
-    <p style={{ opacity: .8 }}>رقم الملف: {c?.file_no ?? '—'} — {c?.email ?? ''}</p>
+    <p style={{ opacity: .8 }}>رقم الملف: {c?.file_no ?? '—'}</p>
     <form action={updateClient.bind(null, id)} style={{ display: 'grid', gap: 6, maxWidth: 460, margin: '10px 0' }}>
       <b>✏️ تعديل بيانات العميل كاملة</b>
       <input name="name" required defaultValue={c?.full_name ?? ''} placeholder="الاسم" />
       <input name="file_no" defaultValue={c?.file_no ?? ''} placeholder="رقم الملف" />
       <input name="phone" defaultValue={c?.phone ?? ''} placeholder="الهاتف" />
-      <input name="email" type="email" defaultValue={c?.email ?? ''} placeholder="البريد الإلكتروني" />
       <input name="gov" defaultValue={c?.governorate ?? ''} placeholder="المحافظة" />
       <input name="district" defaultValue={c?.district ?? ''} placeholder="المركز" />
       <textarea name="notes" rows={3} defaultValue={c?.notes ?? ''} placeholder="ملاحظات" />

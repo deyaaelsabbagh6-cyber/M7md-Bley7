@@ -105,3 +105,7 @@ footer{text-align:center;padding:30px;opacity:.6;font-size:13px}
 .appwrap h1{font-size:clamp(22px,3.5vw,34px);color:var(--gold2)}
 .appwrap main>div[style*="border"],.appwrap main form[style*="grid"]{background:rgba(12,10,7,.78)}
 .appwrap main{display:block}
+
+.pnav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:22px;padding:12px 0;border-top:1px solid rgba(212,175,55,.3)}
+.pnav-c{font-size:30px;filter:drop-shadow(0 0 10px #d4af37)}
+.pnav .bp{padding:8px 14px;font-size:14px}

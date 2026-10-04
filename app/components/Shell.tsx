@@ -1,13 +1,19 @@
+import { Suspense } from 'react'
 import { serverClient } from '@/lib/supabase'
 import { signOutAction, toggleLang } from '@/app/actions'
 import { logoutWithCheckout } from '@/app/lawyer/actions'
 import NavLinks from './NavLinks'
+import PageNav from './PageNav'
+import Flash from './Flash'
 
-// هيكل اللوحات: قائمة جانبية + شريط علوي + خلفية التمثال (مطابق للتصميمات)
-export default async function Shell({ role, nav, name, children }: { role: 'owner' | 'lawyer'; nav: [string, string, string][]; name: string; children: React.ReactNode }) {
+// العدّاد في مكوّن مستقل حتى لا يؤخّر ظهور الصفحة
+async function Bell({ href }: { href: string }) {
   const sb = await serverClient()
   const { count } = await sb.from('notifications').select('*', { count: 'exact', head: true }).eq('read', false)
-  const unread = count ?? 0
+  return <a href={href} className="bell">🔔{count ? <i className="dot">{count}</i> : null}</a>
+}
+
+export default async function Shell({ role, nav, name, children }: { role: 'owner' | 'lawyer'; nav: [string, string, string][]; name: string; children: React.ReactNode }) {
   const base = role === 'owner' ? '/owner' : '/lawyer'
   return (
     <div className="appwrap">
@@ -15,7 +21,7 @@ export default async function Shell({ role, nav, name, children }: { role: 'owne
       <div className="shell">
         <aside className="side">
           <div className="logo">⚖️<b>مكتب بليح للمحاماة</b></div>
-          <NavLinks items={nav} badge={{ [`${base}/notifications`]: unread }} />
+          <NavLinks items={nav} />
           <div className="who">
             <span className="av">{(name || 'م').trim()[0]}</span>
             <div><b>{name}</b><small>{role === 'owner' ? 'صاحب المكتب' : 'محامي'}</small></div>
@@ -28,9 +34,13 @@ export default async function Shell({ role, nav, name, children }: { role: 'owne
               <input name="q" className="srch" style={{ width: '100%' }} placeholder="ابحث في النظام..." />
             </form>
             <form action={toggleLang}><button className="bt">🌐 العربية / EN</button></form>
-            <a href={`${base}/notifications`} className="bell">🔔{unread ? <i className="dot">{unread}</i> : null}</a>
+            <Suspense fallback={<a href={`${base}/notifications`} className="bell">🔔</a>}><Bell href={`${base}/notifications`} /></Suspense>
           </div>
-          <main>{children}</main>
+          <main>
+            <Flash />
+            {children}
+            <PageNav items={nav} />
+          </main>
         </div>
       </div>
     </div>

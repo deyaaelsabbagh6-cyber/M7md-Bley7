@@ -1,8 +1,9 @@
 'use server'
 import { revalidatePath } from 'next/cache'
+import { guard } from '@/lib/flash'
 import { requireOwner } from '@/lib/owner'
 
-export async function createLawyer(f: FormData) {
+async function createLawyerImpl(f: FormData) {
   const { admin, user } = await requireOwner()
   const username = String(f.get('username')).trim().toLowerCase()
   if (!/^[a-z0-9._-]{3,30}$/.test(username)) throw new Error('اسم المستخدم: حروف إنجليزية وأرقام 3-30')
@@ -67,3 +68,5 @@ export async function sendAssignment(f: FormData) {
   await admin.from('audit_logs').insert({ actor_id: user.id, action: 'CASE_ASSIGNED', entity: 'case', entity_id: caseId, meta: { lawyer, kind } })
   revalidatePath('/owner/lawyers'); revalidatePath(`/owner/lawyers/${lawyer}`)
 }
+
+export async function createLawyer(f: FormData) { await guard('/owner/lawyers', () => createLawyerImpl(f)) }

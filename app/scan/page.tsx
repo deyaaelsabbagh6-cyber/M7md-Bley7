@@ -1,12 +1,15 @@
 'use client'
 import { useRef, useState } from 'react'
 import { PDFDocument } from 'pdf-lib'
+import { createClient } from '@supabase/supabase-js'
+import { prepareUpload, finalizeUpload } from '../actions-docs'
 
 type Pg = { url: string; rot: number; br: number; ct: number }
 export default function Scan() {
   const v = useRef<HTMLVideoElement>(null)
   const [pages, setPages] = useState<Pg[]>([])
-  const [caseId, setCaseId] = useState('')
+  const q = typeof window !== 'undefined' ? new URLSearchParams(location.search) : null
+  const clientId = q?.get('client') ?? '', caseId = q?.get('case') ?? ''
   const [msg, setMsg] = useState('')
 
   async function start() {
@@ -31,16 +34,22 @@ export default function Scan() {
     return new Uint8Array(await (await new Promise<Blob>((r) => c.toBlob((b) => r(b!), 'image/jpeg', .85))).arrayBuffer())
   }
   async function makePdf() {
-    if (!caseId || !pages.length) return setMsg('اكتب معرّف القضية وصوّر صفحة على الأقل')
-    const pdf = await PDFDocument.create()
-    for (const pg of pages) {
-      const im = await pdf.embedJpg(await render(pg)); const p = pdf.addPage([im.width, im.height]); p.drawImage(im, { x: 0, y: 0, width: im.width, height: im.height })
-    }
-    const bytes = await pdf.save()
-    const fd = new FormData(); fd.append('caseId', caseId)
-    fd.append('file', new File([bytes as BlobPart], `scan-${Date.now()}.pdf`, { type: 'application/pdf' }))
-    const r = await fetch('/api/upload', { method: 'POST', body: fd })
-    setMsg(r.ok ? '✅ تم إنشاء PDF وربطه بالقضية' : (await r.json()).error)
+    if (!clientId || !pages.length) return setMsg('افتح الماسح من صفحة العميل أو القضية، وصوّر صفحة على الأقل')
+    setMsg('جارٍ إنشاء PDF...')
+    try {
+      const pdf = await PDFDocument.create()
+      for (const pg of pages) {
+        const im = await pdf.embedJpg(await render(pg)); const p = pdf.addPage([im.width, im.height]); p.drawImage(im, { x: 0, y: 0, width: im.width, height: im.height })
+      }
+      const bytes = await pdf.save(); const name = `scan-${Date.now()}.pdf`
+      const file = new File([bytes as BlobPart], name, { type: 'application/pdf' })
+      const { path, token } = await prepareUpload({ clientId, caseId: caseId || null, name, type: file.type, size: file.size })
+      const sb = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false } })
+      const { error } = await sb.storage.from('case-docs').uploadToSignedUrl(path, token, file, { contentType: file.type })
+      if (error) throw new Error(error.message)
+      await finalizeUpload({ clientId, caseId: caseId || null, path, name, type: file.type, size: file.size })
+      setMsg('✅ تم إنشاء PDF وربطه بالملف'); setPages([])
+    } catch (e: any) { setMsg('❌ ' + e.message) }
   }
   return (
     <main dir="rtl" style={{ padding: 16, background: '#070605', color: '#f4ecd8', minHeight: '100vh' }}>

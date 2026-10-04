@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation'
+import ClientUpload from './ClientUpload'
 const one = (x: any) => (Array.isArray(x) ? x[0] : x)
 const box = { border: '1px solid #d4af3788', borderRadius: 14, padding: 14, marginTop: 10, background: '#14110cb8' }
 const ST: Record<string, string> = { open: 'قيد المتابعة', pending: 'معلقة', closed: 'مكتملة', archived: 'مؤرشفة' }
@@ -19,7 +20,7 @@ export default async function CaseFile({ sb, id, base, children }: { sb: any; id
     <h1 style={{ color: '#f3d98b' }}>#{c.case_number} — {c.title || c.case_type}</h1>
     <div style={box}>
       <p>الحالة: <b>{ST[c.status] ?? c.status}</b> — المحكمة: {c.court} — {c.governorate} / {c.district}</p>
-      <p>العميل: <a href={`${base}/clients/${k?.id}`} style={{ color: '#f3d98b' }}>{k?.full_name}</a> {k?.phone}{k?.file_no ? ` — ملف ${k.file_no}` : ''}{k?.email ? ` — ${k.email}` : ''} — المحامي المسؤول: {lead?.full_name ?? 'لم يُعيَّن'}</p>
+      <p>العميل: <a href={`${base}/clients/${k?.id}`} style={{ color: '#f3d98b' }}>{k?.full_name}</a> {k?.phone}{k?.file_no ? ` — ملف ${k.file_no}` : ''} — المحامي المسؤول: {lead?.full_name ?? 'لم يُعيَّن'}</p>
       {!!part?.length && <p>المحامون المشاركون: {part.map((x: any) => one(one(x.lawyers)?.profiles)?.full_name).join('، ')}</p>}
       {c.notes && <p>ملاحظات: {c.notes}</p>}
     </div>
@@ -30,7 +31,8 @@ export default async function CaseFile({ sb, id, base, children }: { sb: any; id
     <h2>الطلبات المرسلة للمحامين</h2>
     {(asg ?? []).map((a: any) => <div key={a.id} style={box}>{KIND[a.kind]} — {a.status} {a.note && `— ${a.note}`}</div>)}
     <h2>المستندات</h2>
+    <div style={box}><ClientUpload clientId={c.client_id} fixedCase={id} cases={[]} /></div>
     {(docs ?? []).map((d: any) => <div key={d.id} style={box}>📄 <a href={`/api/doc/${d.id}`} style={{ color: '#f3d98b' }}>{d.name}</a> <small style={{ opacity: .6 }}>{new Date(d.created_at).toLocaleDateString('ar-EG')}</small></div>)}
-    {!docs?.length && <p style={{ opacity: .6 }}>لا مستندات. ارفع من صفحة العميل.</p>}
+    {!docs?.length && <p style={{ opacity: .6 }}>لا مستندات بعد.</p>}
   </>)
 }

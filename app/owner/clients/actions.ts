@@ -1,14 +1,19 @@
 'use server'
 import { revalidatePath } from 'next/cache'
 import { requireRole } from '@/lib/role'
+import { guard } from '@/lib/flash'
 export async function addClient(f: FormData) {
-  const { admin, user } = await requireRole('owner')
-  const { data } = await admin.from('clients').insert({
-    full_name: String(f.get('name')), phone: String(f.get('phone') || ''), governorate: String(f.get('gov') || ''), district: String(f.get('district') || ''),
-    file_no: String(f.get('file_no') || '').trim() || null, email: String(f.get('email') || '').trim() || null,
-  }).select('id').single()
-  await admin.from('audit_logs').insert({ actor_id: user.id, action: 'USER_CREATED', entity: 'client', entity_id: data?.id })
-  revalidatePath('/owner/clients')
+  await guard('/owner/clients', async () => {
+    const { admin, user } = await requireRole('owner')
+    const name = String(f.get('name') || '').trim(); if (!name) throw new Error('اسم العميل مطلوب')
+    const { data, error } = await admin.from('clients').insert({
+      full_name: name, phone: String(f.get('phone') || '').trim() || null, governorate: String(f.get('gov') || '').trim() || null, district: String(f.get('district') || '').trim() || null,
+      file_no: String(f.get('file_no') || '').trim() || null,
+    }).select('id').single()
+    if (error) throw new Error(error.code === '23505' ? 'رقم الملف مستخدم من قبل' : 'تعذّر الحفظ: ' + error.message)
+    await admin.from('audit_logs').insert({ actor_id: user.id, action: 'USER_CREATED', entity: 'client', entity_id: data?.id })
+    revalidatePath('/owner/clients')
+  })
 }
 export async function archiveClient(id: string) {
   const { admin, user } = await requireRole('owner')

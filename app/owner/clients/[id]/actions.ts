@@ -25,7 +25,7 @@ export async function updateClient(id: string, f: FormData) {
   const name = String(f.get('name') || '').trim(); if (!name) throw new Error('اسم العميل مطلوب')
   const t = (k: string) => String(f.get(k) || '').trim() || null
   const { error } = await admin.from('clients').update({
-    full_name: name, file_no: t('file_no'), phone: t('phone'), email: t('email'), governorate: t('gov'), district: t('district'), notes: t('notes'),
+    full_name: name, file_no: t('file_no'), phone: t('phone'), governorate: t('gov'), district: t('district'), notes: t('notes'),
   }).eq('id', id)
   if (error) throw new Error(error.code === '23505' ? 'رقم الملف مستخدم من قبل' : error.message)
   await admin.from('audit_logs').insert({ actor_id: user.id, action: 'CLIENT_UPDATED', entity: 'client', entity_id: id })
