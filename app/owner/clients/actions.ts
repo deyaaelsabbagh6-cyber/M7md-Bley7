@@ -2,6 +2,7 @@
 import { revalidatePath } from 'next/cache'
 import { requireRole } from '@/lib/role'
 import { guard } from '@/lib/flash'
+import { redirect } from 'next/navigation'
 export async function addClient(f: FormData) {
   await guard('/owner/clients', async () => {
     const { admin, user } = await requireRole('owner')
@@ -14,6 +15,7 @@ export async function addClient(f: FormData) {
     await admin.from('audit_logs').insert({ actor_id: user.id, action: 'USER_CREATED', entity: 'client', entity_id: data?.id })
     revalidatePath('/owner/clients')
   })
+  redirect('/owner/clients?ok=' + encodeURIComponent('تم حفظ العميل'))
 }
 export async function archiveClient(id: string) {
   const { admin, user } = await requireRole('owner')

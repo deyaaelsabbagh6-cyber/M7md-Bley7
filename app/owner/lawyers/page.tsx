@@ -1,6 +1,7 @@
 import { requireOwner } from '@/lib/owner'
 import { one } from '@/lib/role'
 import DispatchForm from '@/app/components/DispatchForm'
+import BulkList from '@/app/components/BulkList'
 import { createLawyer, toggleLawyer, resetLawyerPassword, archiveLawyer, sendAssignment } from './actions'
 
 const box = { border: '1px solid #d4af3788', borderRadius: 14, padding: 16, marginTop: 10, background: '#14110cb8' }
@@ -29,22 +30,19 @@ export default async function Lawyers() {
         </form>
         <DispatchForm cases={(cases ?? []) as any} lawyers={lawyers} action={sendAssignment} />
       </div>
-      {(list ?? []).map((l: any) => {
+      <BulkList entity="lawyers" ops={['disable', 'enable', 'delete']} empty="لا يوجد محامون بعد." rows={(list ?? []).map((l: any) => {
         const p = one(l.profiles)
-        return (
-          <div key={l.id} style={box}>
+        return { id: l.id, ops: p?.is_active ? ['disable', 'delete'] : ['enable', 'delete'], node: (
+          <div>
             <b>{p?.full_name}</b> (@{p?.username}) — {l.specialty ?? 'بدون تخصص'} — {p?.phone} — {l.employee_id} — {p?.is_active ? '✅ مفعّل' : '⛔ معطّل'}
             <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>
               <a href={`/owner/lawyers/${l.id}`} style={{ color: '#f3d98b' }}>📂 فتح مساحة المحامي / تعديل</a>
-              <form action={toggleLawyer.bind(null, l.id, !p?.is_active)}><button>{p?.is_active ? 'تعطيل' : 'تفعيل'}</button></form>
-              <form action={archiveLawyer.bind(null, l.id)}><button>أرشفة</button></form>
               <form action={resetLawyerPassword.bind(null, l.id)}>
                 <input name="pw" type="password" minLength={10} required placeholder="كلمة مرور جديدة" /> <button>إعادة تعيين</button>
               </form>
             </div>
-          </div>
-        )
-      })}
+          </div>) }
+      })} />
     </>
   )
 }

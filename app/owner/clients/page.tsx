@@ -1,10 +1,12 @@
 import Link from 'next/link'
 import { requireRole } from '@/lib/role'
-import { addClient, archiveClient } from './actions'
-export default async function Clients({ searchParams }: { searchParams: Promise<{ q?: string }> }) {
-  const { q } = await searchParams
+import { addClient } from './actions'
+import BulkList from '@/app/components/BulkList'
+export default async function Clients({ searchParams }: { searchParams: Promise<{ q?: string; show?: string }> }) {
+  const { q, show } = await searchParams
+  const arch = show === 'archived'
   const { sb } = await requireRole('owner')
-  let query = sb.from('clients').select('*').eq('archived', false).order('created_at', { ascending: false })
+  let query = sb.from('clients').select('*').eq('archived', arch).order('created_at', { ascending: false })
   if (q) query = query.or(`full_name.ilike.%${q.replace(/[%,()]/g, '')}%,phone.ilike.%${q.replace(/[%,()]/g, '')}%`)
   const { data } = await query
   return (
@@ -16,9 +18,9 @@ export default async function Clients({ searchParams }: { searchParams: Promise<
         <b>إضافة عميل</b><input name="file_no" placeholder="رقم الملف" /><input name="name" required placeholder="الاسم" /><input name="phone" placeholder="الهاتف" />
         <input name="gov" placeholder="المحافظة" /><input name="district" placeholder="المركز / المنطقة" /><button>إضافة</button>
       </form>
-      {(data ?? []).map((c) => <div key={c.id} style={{ border: '1px solid #d4af3788', borderRadius: 14, padding: 12, marginTop: 8 }}>
-        <Link href={`/owner/clients/${c.id}`} style={{ color: '#f3d98b', fontWeight: 700 }}>{c.full_name}</Link> — {c.phone} — {c.governorate}
-        <form action={archiveClient.bind(null, c.id)} style={{ display: 'inline', marginInlineStart: 10 }}><button>أرشفة</button></form></div>)}
+      <p><Link href={arch ? '/owner/clients' : '/owner/clients?show=archived'} style={{ color: '#f3d98b' }}>{arch ? '← العملاء النشطون' : '🗄 عرض العملاء المعطّلين'}</Link></p>
+      <BulkList entity="clients" ops={arch ? ['restore', 'delete'] : ['disable', 'delete']} empty="لا يوجد عملاء." rows={(data ?? []).map((c: any) => ({ id: c.id, node: (
+        <div><Link href={`/owner/clients/${c.id}`} style={{ color: '#f3d98b', fontWeight: 700 }}>{c.full_name}</Link> — {c.phone} — {c.governorate}{c.file_no ? ` — ملف ${c.file_no}` : ''}</div>) }))} />
     </>
   )
 }

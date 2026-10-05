@@ -27,6 +27,7 @@ export default async function Shell({ role, nav, name, children }: { role: 'owne
             <div><b>{name}</b><small>{role === 'owner' ? 'صاحب المكتب' : 'محامي'}</small></div>
             <form action={role === 'owner' ? signOutAction : logoutWithCheckout}><button className="bt sm">خروج</button></form>
           </div>
+          <small style={{ opacity: .45, textAlign: 'center' }}>إصدار v12</small>
         </aside>
         <div className="mn">
           <div className="top">

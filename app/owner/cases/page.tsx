@@ -1,9 +1,11 @@
 import { requireRole, one } from '@/lib/role'
 import { addCase, addHearing } from './actions'
-export default async function Cases() {
+import BulkList from '@/app/components/BulkList'
+export default async function Cases({ searchParams }: { searchParams: Promise<{ show?: string }> }) {
+  const arch = (await searchParams).show === 'archived'
   const { sb } = await requireRole('owner')
   const [{ data: cases }, { data: clients }, { data: lawyers }] = await Promise.all([
-    sb.from('cases').select('id,case_number,case_type,court,status,clients(full_name)').order('created_at', { ascending: false }),
+    (arch ? sb.from('cases').select('id,case_number,case_type,court,status,clients(full_name)').eq('status', 'archived') : sb.from('cases').select('id,case_number,case_type,court,status,clients(full_name)').neq('status', 'archived')).order('created_at', { ascending: false }),
     sb.from('clients').select('id,full_name').eq('archived', false),
     sb.from('lawyers').select('id,profiles(full_name)'),
   ])
@@ -18,10 +20,13 @@ export default async function Cases() {
         <select name="lawyer"><option value="">المحامي المسؤول</option>{(lawyers ?? []).map((l: any) => <option key={l.id} value={l.id}>{one(l.profiles)?.full_name}</option>)}</select>
         <button>إنشاء</button>
       </form>
-      {(cases ?? []).map((c: any) => <div key={c.id} style={{ border: '1px solid #d4af3788', borderRadius: 14, padding: 12, marginTop: 8 }}>
-        <a href={`/owner/cases/${c.id}`} style={{ color: '#f3d98b', fontWeight: 700 }}>#{c.case_number}</a> — {c.case_type} — {c.court} — {one(c.clients)?.full_name} — {c.status}
-        <form action={addHearing.bind(null, c.id)} style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
-          <input name="at" type="datetime-local" required /><input name="court" placeholder="المحكمة" /><button>+ جلسة</button></form></div>)}
+      <p><a href={arch ? '/owner/cases' : '/owner/cases?show=archived'} style={{ color: '#f3d98b' }}>{arch ? '← القضايا النشطة' : '🗄 عرض القضايا المؤرشفة'}</a></p>
+      <BulkList entity="cases" ops={arch ? ['restore', 'delete'] : ['disable', 'delete']} empty="لا توجد قضايا." rows={(cases ?? []).map((c: any) => ({ id: c.id, node: (
+        <div>
+          <a href={`/owner/cases/${c.id}`} style={{ color: '#f3d98b', fontWeight: 700 }}>#{c.case_number}</a> — {c.case_type} — {c.court} — {one(c.clients)?.full_name} — {c.status}
+          <form action={addHearing.bind(null, c.id)} style={{ display: 'flex', gap: 6, marginTop: 6, flexWrap: 'wrap' }}>
+            <input name="at" type="datetime-local" required /><input name="court" placeholder="المحكمة" /><button>+ جلسة</button></form>
+        </div>) }))} />
     </>
   )
 }
