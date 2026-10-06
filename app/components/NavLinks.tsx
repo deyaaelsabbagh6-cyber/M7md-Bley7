@@ -10,7 +10,7 @@ export default function NavLinks({ items, badge }: { items: [string, string, str
         const root = href === '/owner' || href === '/lawyer'
         const on = p === href || (!root && p.startsWith(href))
         return (
-          <Link key={href} href={href} className={`nv ${on ? 'on' : ''}`}>
+          <Link prefetch={false} key={href} href={href} className={`nv ${on ? 'on' : ''}`}>
             <span>{icon}</span>{label}
             {badge?.[href] ? <i className="dot">{badge[href]}</i> : null}
           </Link>

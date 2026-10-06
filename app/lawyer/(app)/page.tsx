@@ -23,7 +23,7 @@ export default async function Home() {
       </div>
       <div className="split">
         <div className="mn">
-          <div className="pn"><h3>أحدث قضاياي<Link className="bt sm" href="/lawyer/cases">عرض الكل</Link></h3>
+          <div className="pn"><h3>أحدث قضاياي<Link prefetch={false} className="bt sm" href="/lawyer/cases">عرض الكل</Link></h3>
             <div className="sc"><table className="tb"><thead><tr><th>رقم القضية</th><th>النوع</th><th>العميل</th><th>الحالة</th></tr></thead><tbody>
               {(cases ?? []).map((c: any) => { const s = ST[c.status] ?? ST.open; return <tr key={c.id}><td>{c.case_number}</td><td>{c.case_type}</td><td>{one(c.clients)?.full_name}</td><td><span className={`b ${s[1]}`}>{s[0]}</span></td></tr> })}
               {!cases?.length && <tr><td colSpan={4} style={{ opacity: .6 }}>لا توجد قضايا مسندة إليك.</td></tr>}
@@ -35,7 +35,7 @@ export default async function Home() {
         <div className="mn">
           <div className="pn"><h3>الحضور والانصراف</h3><p>{open ? `حاضر منذ ${new Date(open.check_in).toLocaleTimeString('ar-EG')}` : 'لم تسجّل الحضور'}</p>
             <p style={{ opacity: .7, fontSize: 13 }}>يُسجَّل الانصراف تلقائيًا عند الضغط على «خروج».</p></div>
-          <div className="pn"><h3>الطلبات الجديدة<Link className="bt sm" href="/lawyer/requests">عرض الكل</Link></h3>
+          <div className="pn"><h3>الطلبات الجديدة<Link prefetch={false} className="bt sm" href="/lawyer/requests">عرض الكل</Link></h3>
             {(reqs ?? []).map((r: any) => <div className="li" key={r.id}><div className="ic">📨</div><div><b>{r.kind}</b><small>{one(r.cases)?.case_number} {r.note ?? ''}</small></div></div>)}
             {!reqs?.length && <p style={{ opacity: .6 }}>لا طلبات جديدة.</p>}</div>
           <div className="pn"><h3>مهامي</h3>{(tasks ?? []).map((t) => <div className="li" key={t.id}>⬜ {t.title}</div>)}{!tasks?.length && <p style={{ opacity: .6 }}>لا مهام.</p>}</div>

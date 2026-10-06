@@ -32,7 +32,10 @@ export default async function Lawyers() {
       </div>
       <BulkList entity="lawyers" ops={['disable', 'enable', 'delete']} empty="لا يوجد محامون بعد." rows={(list ?? []).map((l: any) => {
         const p = one(l.profiles)
-        return { id: l.id, ops: p?.is_active ? ['disable', 'delete'] : ['enable', 'delete'], node: (
+        return { id: l.id, ops: p?.is_active ? ['disable', 'delete'] : ['enable', 'delete'], edit: [
+          { name: 'full_name', label: 'الاسم', value: p?.full_name ?? '' }, { name: 'username', label: 'اسم المستخدم (إنجليزي)', value: p?.username ?? '' }, { name: 'phone', label: 'الهاتف', value: p?.phone ?? '' },
+          { name: 'employee_id', label: 'الرقم الوظيفي', value: l.employee_id ?? '' }, { name: 'specialty', label: 'التخصص', value: l.specialty ?? '' },
+        ], node: (
           <div>
             <b>{p?.full_name}</b> (@{p?.username}) — {l.specialty ?? 'بدون تخصص'} — {p?.phone} — {l.employee_id} — {p?.is_active ? '✅ مفعّل' : '⛔ معطّل'}
             <div style={{ display: 'flex', gap: 8, marginTop: 8, flexWrap: 'wrap', alignItems: 'center' }}>

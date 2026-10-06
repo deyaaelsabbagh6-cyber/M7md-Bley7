@@ -109,3 +109,8 @@ footer{text-align:center;padding:30px;opacity:.6;font-size:13px}
 .pnav{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:22px;padding:12px 0;border-top:1px solid rgba(212,175,55,.3)}
 .pnav-c{font-size:30px;filter:drop-shadow(0 0 10px #d4af37)}
 .pnav .bp{padding:8px 14px;font-size:14px}
+
+@media(max-width:900px){.side{background:#0b0906}.appwrap{padding:8px 8px 24px}}
+.appwrap .pn .sm,.appwrap .pn button.sm{padding:6px 12px;font-size:13px}
+
+@media(max-width:900px){.pn,.side,.hero,.tile,.bt,.bp{box-shadow:none!important}.appwrap *{will-change:auto}}

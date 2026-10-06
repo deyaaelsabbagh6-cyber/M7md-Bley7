@@ -6,7 +6,7 @@ export default async function Clients() {
   return (<>
     <h1 style={{ color: '#f3d98b' }}>عملائي</h1>
     {(data ?? []).map((c) => <div key={c.id} style={{ border: '1px solid #d4af3788', borderRadius: 14, padding: 12, marginTop: 8 }}>
-      <Link href={`/lawyer/clients/${c.id}`} style={{ color: '#f3d98b', fontWeight: 700 }}>{c.full_name}</Link> — {c.phone} — {c.governorate}</div>)}
+      <Link prefetch={false} href={`/lawyer/clients/${c.id}`} style={{ color: '#f3d98b', fontWeight: 700 }}>{c.full_name}</Link> — {c.phone} — {c.governorate}</div>)}
     {!data?.length && <p style={{ opacity: .6 }}>لا يوجد عملاء مرتبطون بقضاياك.</p>}
   </>)
 }

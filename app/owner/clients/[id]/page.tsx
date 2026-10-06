@@ -24,7 +24,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
   const expenses = (exps ?? []).reduce((s, x) => s + Number(x.amount), 0)
   const opts = (cases ?? []).map((k) => <option key={k.id} value={k.id}>#{k.case_number}</option>)
   return (<>
-    <Link href="/owner/clients" style={{ color: '#f3d98b' }}>← العملاء</Link>
+    <Link prefetch={false} href="/owner/clients" style={{ color: '#f3d98b' }}>← العملاء</Link>
     <h1 style={{ color: '#f3d98b' }}>👤 {c?.full_name}</h1>
     <p>{c?.phone} — {c?.governorate} — {c?.district}</p>
     <p style={{ opacity: .8 }}>رقم الملف: {c?.file_no ?? '—'}</p>
@@ -65,6 +65,6 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
     </div>
     <h3>الدفعات والإيصالات</h3>
     {(pays ?? []).map((p: any) => <p key={p.id}>{money(Number(p.amount))} — {p.method === 'transfer' ? 'تحويل' : 'نقدًا'} — {p.status} — إيصال: {(Array.isArray(p.receipts) ? p.receipts[0] : p.receipts)?.receipt_no ?? '—'}</p>)}
-    <Link href="/owner/receipts" style={{ color: '#f3d98b' }}>🧾 كل الإيصالات</Link>
+    <Link prefetch={false} href="/owner/receipts" style={{ color: '#f3d98b' }}>🧾 كل الإيصالات</Link>
   </>)
 }

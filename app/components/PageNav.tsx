@@ -11,9 +11,9 @@ export default function PageNav({ items }: { items: [string, string, string][] }
   const prev = items[idx - 1], next = items[idx + 1]
   return (
     <div className="pnav">
-      {prev ? <Link className="bp" href={prev[0]}>→ السابق: {prev[1]}</Link> : <span />}
+      {prev ? <Link prefetch={false} className="bp" href={prev[0]}>→ السابق: {prev[1]}</Link> : <span />}
       <span className="pnav-c">⚖️</span>
-      {next ? <Link className="bp" href={next[0]}>التالي: {next[1]} ←</Link> : <span />}
+      {next ? <Link prefetch={false} className="bp" href={next[0]}>التالي: {next[1]} ←</Link> : <span />}
     </div>
   )
 }

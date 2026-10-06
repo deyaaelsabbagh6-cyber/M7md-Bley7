@@ -63,6 +63,10 @@ async function one(admin: any, entity: string, op: string, id: string, me: strin
       }
       break
     }
+    case 'hearings': case 'tasks': case 'fees': case 'expenses': case 'lawyer_finance': {
+      if (op !== 'delete') break
+      const { error } = await admin.from(entity).delete().eq('id', id); return error ? error.message : null
+    }
     case 'owners': {
       const prim = await primaryId(admin)
       if (id === me) return 'لا يمكنك تنفيذ ذلك على حسابك'

@@ -14,7 +14,7 @@ export default async function LawyerClient({ params }: { params: Promise<{ id: s
     sb.from('documents').select('id,name,created_at').eq('client_id', id).order('created_at', { ascending: false }),
   ])
   return (<>
-    <Link href="/lawyer/clients" style={{ color: '#f3d98b' }}>← عملائي</Link>
+    <Link prefetch={false} href="/lawyer/clients" style={{ color: '#f3d98b' }}>← عملائي</Link>
     <h1 style={{ color: '#f3d98b' }}>👤 {c.full_name}</h1><p>{c.phone} — {c.governorate} — {c.district}</p>
     <h2>القضايا</h2>
     {(cases ?? []).map((k) => <div key={k.id} style={box}>#{k.case_number} — {k.case_type} — {k.court} — {k.status}</div>)}
