@@ -12,7 +12,13 @@ export default function Scan() {
   const clientId = q?.get('client') ?? '', caseId = q?.get('case') ?? ''
   const [msg, setMsg] = useState('')
 
+  // بديل يعمل على كل المتصفحات (آيفون/أندرويد/كمبيوتر): التقاط أو اختيار صورة من الجهاز
+  function addFiles(e: React.ChangeEvent<HTMLInputElement>) {
+    Array.from(e.target.files ?? []).forEach((f) => { const r = new FileReader(); r.onload = () => setPages((p) => [...p, { url: String(r.result), rot: 0, br: 100, ct: 110 }]); r.readAsDataURL(f) })
+    e.target.value = ''
+  }
   async function start() {
+    if (!navigator.mediaDevices?.getUserMedia) return setMsg('متصفحك لا يدعم الكاميرا المباشرة — استخدم زر «التقاط/اختيار صورة»')
     const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false })
     v.current!.srcObject = s; await v.current!.play()
   }
@@ -54,9 +60,8 @@ export default function Scan() {
   return (
     <main dir="rtl" style={{ padding: 16, background: '#070605', color: '#f4ecd8', minHeight: '100vh' }}>
       <h1 style={{ color: '#f3d98b' }}>📷 ماسح المستندات</h1>
-      <input placeholder="معرّف القضية (UUID)" value={caseId} onChange={(e) => setCaseId(e.target.value)} style={{ width: '100%' }} />
       <video ref={v} playsInline muted style={{ width: '100%', borderRadius: 12, marginTop: 8 }} />
-      <div style={{ display: 'flex', gap: 8, margin: '8px 0' }}><button onClick={start}>تشغيل الكاميرا</button><button onClick={snap}>التقاط</button><button onClick={makePdf}>إنشاء PDF ورفعه</button></div>
+      <div style={{ display: 'flex', gap: 8, margin: '8px 0' }}><label className="bp" style={{ cursor: 'pointer', padding: '8px 14px' }}>📷 التقاط/اختيار صورة<input type="file" accept="image/*" capture="environment" multiple hidden onChange={addFiles} /></label><button onClick={start}>تشغيل الكاميرا</button><button onClick={snap}>التقاط</button><button onClick={makePdf}>إنشاء PDF ورفعه</button></div>
       <p>{msg}</p>
       {pages.map((p, i) => (
         <div key={i} style={{ border: '1px solid #d4af3788', borderRadius: 12, padding: 8, marginTop: 8 }}>

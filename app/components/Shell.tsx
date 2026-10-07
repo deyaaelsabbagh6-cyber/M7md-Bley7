@@ -28,7 +28,7 @@ export default async function Shell({ role, nav, name, children }: { role: 'owne
             <div><b>{name}</b><small>{role === 'owner' ? 'صاحب المكتب' : 'محامي'}</small></div>
             <form action={role === 'owner' ? signOutAction : logoutWithCheckout}><button className="bt sm">خروج</button></form>
           </div>
-          <small style={{ opacity: .45, textAlign: 'center' }}>إصدار v17</small>
+          <small style={{ opacity: .45, textAlign: 'center' }}>إصدار v18</small>
         </aside>
         <div className="mn">
           <div className="top">
@@ -36,7 +36,7 @@ export default async function Shell({ role, nav, name, children }: { role: 'owne
               <input name="q" className="srch" style={{ width: '100%' }} placeholder="ابحث في النظام..." />
             </form>
             <form action={toggleLang}><button className="bt">🌐 العربية / EN</button></form>
-            <LiveWatcher />
+            <LiveWatcher role={role} />
             <Suspense fallback={<a href={`${base}/notifications`} className="bell">🔔</a>}><Bell href={`${base}/notifications`} /></Suspense>
           </div>
           <main>

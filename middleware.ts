@@ -12,7 +12,7 @@ function kill(req: NextRequest, to: string) {
 }
 
 export async function middleware(req: NextRequest) {
-  const area = AREAS.find((a) => req.nextUrl.pathname.startsWith('/' + a))
+  const area = AREAS.find((a) => req.nextUrl.pathname.startsWith('/' + a)) ?? (req.nextUrl.pathname.startsWith('/scan') ? 'scan' : null)
   if (!area) return NextResponse.next()
 
   const last = Number(req.cookies.get('last_seen')?.value ?? 0)
@@ -36,4 +36,4 @@ export async function middleware(req: NextRequest) {
   res.cookies.set('last_seen', String(Date.now()), opts)
   return res
 }
-export const config = { matcher: ['/owner/:path*', '/lawyer/:path*'] }
+export const config = { matcher: ['/owner/:path*', '/lawyer/:path*', '/scan/:path*'] }

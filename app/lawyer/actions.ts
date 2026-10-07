@@ -15,7 +15,7 @@ export async function checkInAndGo() {
   const { data: still } = await admin.from('attendance').select('id').eq('lawyer_id', user.id).is('check_out', null).limit(1)
   if (!still?.length) {
     const ua = (await headers()).get('user-agent')
-    await admin.from('attendance').insert({ lawyer_id: user.id, user_agent: ua })
+    await admin.from('attendance').insert({ lawyer_id: user.id, user_agent: ua, last_seen: new Date().toISOString() })
     await admin.from('audit_logs').insert({ actor_id: user.id, action: 'CHECK_IN' })
     await notifyOwners(admin, `🟢 ${name} سجّل الحضور`, `الساعة ${cairoTime()}`)
   }

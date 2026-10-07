@@ -1,8 +1,10 @@
 import { requireOwner } from '@/lib/owner'
+import { sweepStale } from '@/lib/attendance'
 
 const one = <T,>(x: T | T[] | null | undefined) => (Array.isArray(x) ? x[0] : x)
 export default async function Attendance() {
-  const { sb } = await requireOwner()
+  const { sb, admin } = await requireOwner()
+  await sweepStale(admin)
   const { data } = await sb.from('attendance').select('id,check_in,check_out,auto_closed,lawyers(profiles(full_name))').order('check_in', { ascending: false }).limit(200)
   const fmt = (v: string) => new Date(v).toLocaleString('ar-EG')
   return (
